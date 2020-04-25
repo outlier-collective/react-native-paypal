@@ -49,8 +49,11 @@ public class RNPaypalModule extends ReactContextBaseJavaModule implements Activi
       return;
     }
 
-    PayPalRequest request = new PayPalRequest(options.getString("amount"))
-        .intent(PayPalRequest.INTENT_AUTHORIZE);
+    // PayPalRequest request = new PayPalRequest(options.getString("amount"))
+    //     .intent(PayPalRequest.INTENT_AUTHORIZE);
+    PayPalRequest request = new PayPalRequest()
+    .localeCode("US")
+    .billingAgreementDescription("Your agreement description");
 
     if (options.hasKey("currency"))
         request.currencyCode(options.getString("currency"));
@@ -73,8 +76,8 @@ public class RNPaypalModule extends ReactContextBaseJavaModule implements Activi
           request.intent(PayPalRequest.INTENT_ORDER);
       }
     }
-
-    PayPal.requestOneTimePayment(braintreeFragment, request);
+    PayPal.requestBillingAgreement(braintreeFragment, request);
+    // PayPal.requestOneTimePayment(braintreeFragment, request);
   }
 
   protected BraintreeFragment initializeBraintreeFragment(
