@@ -24,9 +24,9 @@ static NSString *URLScheme;
 RCT_EXPORT_MODULE()
 
 RCT_EXPORT_METHOD(
-    requestOneTimePayment:(NSString *)clientToken 
-    options:(NSDictionary*)options 
-    resolve:(RCTPromiseResolveBlock)resolve 
+    requestOneTimePayment:(NSString *)clientToken
+    options:(NSDictionary*)options
+    resolve:(RCTPromiseResolveBlock)resolve
     reject:(RCTPromiseRejectBlock)reject)
 {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -40,8 +40,8 @@ RCT_EXPORT_METHOD(
         BTPayPalDriver *payPalDriver = [[BTPayPalDriver alloc] initWithAPIClient:braintreeClient];
         payPalDriver.viewControllerPresentingDelegate = self;
         payPalDriver.appSwitchDelegate = self;
-        
-        BTPayPalRequest *request= [[BTPayPalRequest alloc] initWithAmount:options[@"amount"]];
+
+        BTPayPalRequest *request= [[BTPayPalRequest alloc] init];
         NSString* currency = options[@"currency"];
         if (currency) request.currencyCode = currency;
         NSString* localeCode = options[@"localeCode"];
@@ -57,8 +57,8 @@ RCT_EXPORT_METHOD(
             else if ([@"order" isEqualToString:intent])
                 request.intent = BTPayPalRequestIntentOrder;
         }
-        
-        [payPalDriver requestOneTimePayment:request completion:^(BTPayPalAccountNonce * _Nullable tokenizedPayPalAccount, NSError * _Nullable error) {
+
+        [payPalDriver requestBillingAgreement:request completion:^(BTPayPalAccountNonce * _Nullable tokenizedPayPalAccount, NSError * _Nullable error) {
             if (tokenizedPayPalAccount) {
                 NSDictionary* result = @{
                                          @"nonce" : (tokenizedPayPalAccount.nonce ?: [NSNull null]),
@@ -68,7 +68,7 @@ RCT_EXPORT_METHOD(
                                          @"lastName" : (tokenizedPayPalAccount.lastName  ?: [NSNull null]),
                                          @"phone" : (tokenizedPayPalAccount.phone  ?: [NSNull null]),
                                          };
-                
+
                 resolve(result);
                 return;
             } else if (error) {
@@ -84,7 +84,7 @@ RCT_EXPORT_METHOD(
 
 - (BOOL)application:(UIApplication *)application
     openURL:(NSURL *)url
-    sourceApplication:(NSString *)sourceApplication 
+    sourceApplication:(NSString *)sourceApplication
     annotation:(id)annotation
 {
     if ([url.scheme localizedCaseInsensitiveCompare:URLScheme] == NSOrderedSame) {
